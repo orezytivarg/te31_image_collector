@@ -6,7 +6,6 @@ var _ = require('lodash');
 var latestArticleNumber = 0;
 
 var download = function(uri, fileName, callback) {
-  console.log(uri);
   request(uri).on('response', function (res) {
     var fileExt = '.' + res.headers['content-type'].split('/')[1];
     var filePath = './images/' + fileName + fileExt;
@@ -17,6 +16,10 @@ var download = function(uri, fileName, callback) {
 };
 
 var getImages = function(link) {
+  if (!fs.existsSync('./images')) {
+    fs.mkdirSync('./images');
+  }
+
   request('http://te31.com/rgr/' + link, function(err, res, body) {
     if (err) {
       return;
@@ -68,7 +71,7 @@ var main = function() {
     });
 
     var links = _.map(articlesWithImage, function(a) { return $(a).attr('href') });
-    var newers = _.filter(links, function(l) {
+    var newers = _.filter(_.reverse(links), function(l) {
       var num = l.match(/\d+$/)[0];
       if (num > latestArticleNumber) {
         latestArticleNumber = num;
